@@ -8,7 +8,7 @@
   # Configuration for userland programs
   home.stateVersion = lib.mkDefault "23.05";
 
-  home.file.".step/config/defaults.json" = {
+  home.file.".step/config/defaults.json" = lib.mkIf (osConfig.hl1-io.pki.caFingerprint != null) {
     enable = true;
     force = true;
     onChange = "echo $(date) > ~/stepca-update";
@@ -19,7 +19,7 @@
       ''
         {
           "ca-url": "https://${domain}",
-          "fingerprint": "7b1c58d99a067a170dcadd3b892af2c903f594d6bcc4d2d04762a05962a3618d",
+          "fingerprint": "${osConfig.hl1-io.pki.caFingerprint}",
           "root": "/etc/certs/root_ca.crt",
           "redirect-url": ""
         }

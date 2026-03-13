@@ -19,5 +19,11 @@ with lib;
       default = "user@example.com";
       example = "user@example.com";
     };
+    authorizedKeys = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "SSH public keys that are authorized to log in as the default user";
+      example = [ "ssh-ed25519 AAAA... user@host" ];
+    };
   };
 }

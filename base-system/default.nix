@@ -162,27 +162,29 @@
   users.users.root = { };
   users.users."${config.hl1-io.profile.username}" = { };
 
-  environment.etc."root_ca.crt" = {
+  environment.etc."root_ca.crt" = lib.mkIf (config.hl1-io.pki.caCert != null) {
     enable = true;
-    source = ./certs/ca-root.crt;
+    text = config.hl1-io.pki.caCert;
     target = "./certs/root_ca.crt";
   };
 
-  environment.etc."host_ca.pub" = {
+  environment.etc."host_ca.pub" = lib.mkIf (config.hl1-io.pki.hostCaPub != null) {
     enable = true;
-    source = ./certs/host_ca.pub;
+    text = config.hl1-io.pki.hostCaPub;
     target = "./certs/host_ca.pub";
   };
 
-  environment.etc."user_ca.pub" = {
+  environment.etc."user_ca.pub" = lib.mkIf (config.hl1-io.pki.userCaPub != null) {
     enable = true;
-    source = ./certs/user_ca.pub;
+    text = config.hl1-io.pki.userCaPub;
     target = "./certs/user_ca.pub";
   };
 
   ## TODO: Restrict root login to yubikey agent?
 
-  security.pki.certificateFiles = [ ./certs/ca-root.crt ];
+  security.pki.certificates = lib.mkIf (config.hl1-io.pki.caCert != null) [
+    config.hl1-io.pki.caCert
+  ];
 
   environment.variables.VAULT_ADDR = "https://vault.${config.hl1-io.domains.primary}";
 

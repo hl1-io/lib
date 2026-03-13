@@ -14,6 +14,7 @@ with lib;
     ./option-definitions/systemd.nix
     ./option-definitions/vault.nix
     ./option-definitions/profile.nix
+    ./option-definitions/pki.nix
 
   ];
   # option definitions
