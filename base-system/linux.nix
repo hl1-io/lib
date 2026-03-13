@@ -42,7 +42,7 @@
     createHome = true;
     group = "${config.hl1-io.profile.username}";
     openssh = {
-      authorizedKeys.keyFiles = [ ./pubkeys/canonical.pub ];
+      authorizedKeys.keys = config.hl1-io.profile.authorizedKeys;
     };
   };
 
