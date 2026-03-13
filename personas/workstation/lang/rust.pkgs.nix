@@ -1,0 +1,1 @@
+{ pkgs }: with pkgs; [ cargo rustc rustc-wasm32 ]

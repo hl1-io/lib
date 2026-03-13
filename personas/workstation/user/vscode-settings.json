@@ -1,0 +1,87 @@
+{
+	"security.workspace.trust.untrustedFiles": "open",
+	"editor.fontFamily": "Hack Nerd Font Mono, Menlo, Monaco, 'Courier New', monospace",
+	"[json]": {
+		"editor.defaultFormatter": "vscode.json-language-features"
+	},
+	"[jsonc]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"javascript.updateImportsOnFileMove.enabled": "always",
+	"javascript.preferences.importModuleSpecifier": "relative",
+	"typescript.inlayHints.enumMemberValues.enabled": true,
+	"typescript.surveys.enabled": false,
+	"typescript.preferences.importModuleSpecifier": "relative",
+	"svelte.enable-ts-plugin": true,
+	"todo-tree.filtering.includeHiddenFiles": true,
+	"[svelte]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[dockercompose]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"typescript.updateImportsOnFileMove.enabled": "always",
+	"[sql]": {
+		"editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode"
+	},
+	"[nginx]": {
+		"editor.defaultFormatter": "ahmadalli.vscode-nginx-conf"
+	},
+	"[yaml]": {
+		"editor.defaultFormatter": "redhat.vscode-yaml"
+	},
+	"explorer.confirmDragAndDrop": false,
+	"terminal.integrated.enableMultiLinePasteWarning": false,
+	"redhat.telemetry.enabled": false,
+	"[svg]": {
+		"editor.defaultFormatter": "jock.svg"
+	},
+	"svg.preview.mode": "svg",
+	"remote.SSH.useLocalServer": false,
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.black-formatter"
+	},
+	"[html]": {
+		"editor.defaultFormatter": "vscode.html-language-features"
+	},
+	"files.simpleDialog.enable": true,
+	"workbench.editor.tabSizing": "shrink",
+	"window.density.editorTabHeight": "compact",
+	"editor.minimap.enabled": false,
+	"editor.inlineSuggest.suppressSuggestions": true,
+	"codeium.enableConfig": {
+		"*": true,
+		"hcl": true
+	},
+	"prettier.documentSelectors": [
+		"**/*.{ts,js,svelte}"
+	],
+	"tailwindCSS.includeLanguages": {
+		"svelte": "html"
+	},
+	"diffEditor.ignoreTrimWhitespace": true,
+	"[markdown]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"nix.enableLanguageServer": true,
+	"nix.serverPath": "nixd",
+	"nix.serverSettings": {
+		"nixd": {
+			"formatting": {
+				"command": [
+					"nixfmt"
+				]
+			},
+			"options": {}
+		}
+	},
+	"terminal.integrated.drawBoldTextInBrightColors": false,
+	"terminal.integrated.enableVisualBell": true,
+	"terminal.integrated.minimumContrastRatio": 1
+}
