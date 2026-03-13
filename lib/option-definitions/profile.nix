@@ -15,7 +15,7 @@ with lib;
       default = "hl1-user";
     };
     email = mkOption {
-      type = types.bool;
+      type = types.str;
       default = "user@example.com";
       example = "user@example.com";
     };
