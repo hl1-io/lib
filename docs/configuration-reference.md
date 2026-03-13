@@ -350,8 +350,6 @@ User identity information used across the system (user creation, Git config, TLS
 | `hl1-io.profile.username` | `string` | `"hl1-user"` | Linux username for the primary user account |
 | `hl1-io.profile.email` | `string` | `"user@example.com"` | Primary email address; used for TLS certificate registration and Git config |
 
-> **Known Issue:** The `email` option's type is declared as `bool` in the source (`lib/option-definitions/profile.nix:18`) but its default and usage are strings. This is likely a typo and should be `types.str`. <!-- TODO: Verify this is a bug and fix in source -->
-
 ### Example
 
 ```nix
