@@ -33,6 +33,7 @@ in
   environment.systemPackages = with pkgs; [
     steamcmd
     umu-launcher
+    xvfb-run
   ];
 
   networking.firewall.allowedUDPPorts = [

@@ -30,11 +30,15 @@ let
   serverScript = pkgs.writeShellScript "se-server" ''
     set -euo pipefail
 
-    ${pkgs.umu-launcher}/bin/umu-run \
-      ${cfg.installDir}/game/SpaceEngineersDedicated.exe \
-      -path ${cfg.installDir}/instance \
-      -console \
-      ${lib.concatStringsSep " " cfg.extraServerArgs} &
+    # Space Engineers initialises Xalia (a SDL-based windowing layer) even in
+    # -console mode. xvfb-run provides a throwaway virtual X11 display so that
+    # SDL/Xalia can find a video driver without a physical screen attached.
+    ${pkgs.xvfb-run}/bin/xvfb-run --auto-servernum \
+      ${pkgs.umu-launcher}/bin/umu-run \
+        ${cfg.installDir}/game/SpaceEngineersDedicated.exe \
+        -path ${cfg.installDir}/instance \
+        -console \
+        ${lib.concatStringsSep " " cfg.extraServerArgs} &
     SERVER_PID=$!
 
     # Start log forwarding in the background (same cgroup, auto-killed on stop)
