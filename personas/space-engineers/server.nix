@@ -63,8 +63,11 @@ in
         "STEAM_COMPAT_DATA_PATH=${cfg.installDir}/proton-prefix"
         "STEAM_COMPAT_CLIENT_INSTALL_PATH=${cfg.installDir}"
         "GAMEID=umu-${toString cfg.steamAppId}"
-        "PROTONPATH=${pkgs.proton-ge-bin}"
-        # Set to +all to capture verbose Proton/Wine diagnostics
+        # Proton GE is downloaded by space-engineers-install.service into this path.
+        # It must not reference a nix package — proton-ge-bin outputs a bare archive
+        # file that buildEnv cannot merge into the system environment.
+        "PROTONPATH=${cfg.installDir}/proton"
+        # Set to 1 to capture verbose Proton/Wine diagnostics in the journal
         "PROTON_LOG=0"
       ];
       ExecStart = serverScript;
