@@ -53,6 +53,7 @@
         workstation = import ./personas/workstation;
         workstation-user = import ./personas/workstation/user;
         bastion = import ./personas/bastion;
+        "space-engineers" = import ./personas/space-engineers;
         mailserver = (
           { ... }:
           {

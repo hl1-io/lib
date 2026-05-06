@@ -15,6 +15,7 @@ with lib;
     ./option-definitions/vault.nix
     ./option-definitions/profile.nix
     ./option-definitions/pki.nix
+    ./option-definitions/space-engineers.nix
 
   ];
   # option definitions
