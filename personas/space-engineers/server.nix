@@ -30,23 +30,11 @@ let
   serverScript = pkgs.writeShellScript "se-server" ''
     set -euo pipefail
 
-    # umu-launcher (Proton) wraps the server in a pressure-vessel container
-    # with its own /tmp namespace, which means xvfb-run's X11 socket at
-    # /tmp/.X11-unix/XN is invisible to Wine inside the container.
-    # Switching to plain Wine avoids the container entirely, so xvfb-run's
-    # socket is directly reachable.
-    #
-    # Space Engineers initialises Xalia (SDL-based windowing) even in -console
-    # mode. xvfb-run with a 24-bit screen provides the virtual display Xalia
-    # needs without a physical monitor.
-    ${pkgs.xvfb-run}/bin/xvfb-run \
-      --auto-servernum \
-      --server-args="-screen 0 1920x1080x24" \
-      ${pkgs.wineWowPackages.stable}/bin/wine64 \
-        ${cfg.installDir}/game/SpaceEngineersDedicated.exe \
-        -path ${cfg.installDir}/instance \
-        -console \
-        ${lib.concatStringsSep " " cfg.extraServerArgs} &
+    ${pkgs.umu-launcher}/bin/umu-run \
+      ${cfg.installDir}/game/SpaceEngineersDedicated.exe \
+      -path ${cfg.installDir}/instance \
+      -console \
+      ${lib.concatStringsSep " " cfg.extraServerArgs} &
     SERVER_PID=$!
 
     # Start log forwarding in the background (same cgroup, auto-killed on stop)
@@ -59,9 +47,13 @@ in
   systemd.services.space-engineers = {
     description = "Space Engineers Dedicated Server";
     wantedBy = [ "multi-user.target" ];
-    requires = [ "space-engineers-install.service" ];
+    requires = [
+      "space-engineers-install.service"
+      "space-engineers-display.service"
+    ];
     after = [
       "space-engineers-install.service"
+      "space-engineers-display.service"
       "network-online.target"
     ];
     wants = [ "network-online.target" ];
@@ -72,11 +64,17 @@ in
       WorkingDirectory = "${cfg.installDir}/game";
       Environment = [
         "HOME=${cfg.installDir}"
-        "WINEPREFIX=${cfg.installDir}/wine-prefix"
-        # Suppress noise; set to +all to capture verbose Wine diagnostics
-        "WINEDEBUG=-all"
-        # Prevent Wine from showing popup error dialogs (would block headlessly)
-        "WINEDLLOVERRIDES=mscoree=n;mshtml="
+        "STEAM_COMPAT_DATA_PATH=${cfg.installDir}/proton-prefix"
+        "STEAM_COMPAT_CLIENT_INSTALL_PATH=${cfg.installDir}"
+        "GAMEID=umu-${toString cfg.steamAppId}"
+        "PROTONPATH=${cfg.installDir}/proton"
+        "PROTON_LOG=0"
+        # Fixed display served by space-engineers-display.service (Xvfb :99 -ac).
+        # -ac disables X access control, so XAUTHORITY is irrelevant; point it
+        # at /dev/null to stop X clients from trying to read ~/.Xauthority inside
+        # the pressure-vessel container (where the host home dir is not visible).
+        "DISPLAY=:99"
+        "XAUTHORITY=/dev/null"
       ];
       ExecStart = serverScript;
       Restart = "on-failure";
