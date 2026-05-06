@@ -30,22 +30,19 @@ let
   serverScript = pkgs.writeShellScript "se-server" ''
     set -euo pipefail
 
-    # Space Engineers initialises Xalia (a SDL-based windowing layer) even in
-    # -console mode, so a virtual display is required.
+    # umu-launcher (Proton) wraps the server in a pressure-vessel container
+    # with its own /tmp namespace, which means xvfb-run's X11 socket at
+    # /tmp/.X11-unix/XN is invisible to Wine inside the container.
+    # Switching to plain Wine avoids the container entirely, so xvfb-run's
+    # socket is directly reachable.
     #
-    # Two issues caused SDL to report "Video driver  not supported":
-    #   1. xvfb-run's default screen is 640x480x8 (8-bit colour depth).
-    #      SDL/GLX requires 24-bit depth to create any GL context; without it
-    #      SDL_GetCurrentVideoDriver() returns empty and Xalia throws.
-    #   2. Haswell has incomplete Vulkan support. Without PROTON_NO_VULKAN=1 and
-    #      LIBGL_ALWAYS_SOFTWARE=1 Proton tries hardware Vulkan and may interfere
-    #      with SDL's driver initialisation.
-    #
-    # Fix: 24-bit virtual screen + software Mesa (llvmpipe) so no GPU is needed.
+    # Space Engineers initialises Xalia (SDL-based windowing) even in -console
+    # mode. xvfb-run with a 24-bit screen provides the virtual display Xalia
+    # needs without a physical monitor.
     ${pkgs.xvfb-run}/bin/xvfb-run \
       --auto-servernum \
       --server-args="-screen 0 1920x1080x24" \
-      ${pkgs.umu-launcher}/bin/umu-run \
+      ${pkgs.wineWowPackages.stable}/bin/wine64 \
         ${cfg.installDir}/game/SpaceEngineersDedicated.exe \
         -path ${cfg.installDir}/instance \
         -console \
@@ -75,24 +72,11 @@ in
       WorkingDirectory = "${cfg.installDir}/game";
       Environment = [
         "HOME=${cfg.installDir}"
-        "STEAM_COMPAT_DATA_PATH=${cfg.installDir}/proton-prefix"
-        "STEAM_COMPAT_CLIENT_INSTALL_PATH=${cfg.installDir}"
-        "GAMEID=umu-${toString cfg.steamAppId}"
-        # Proton GE is downloaded by space-engineers-install.service into this path.
-        # It must not reference a nix package — proton-ge-bin outputs a bare archive
-        # file that buildEnv cannot merge into the system environment.
-        "PROTONPATH=${cfg.installDir}/proton"
-        # Force Mesa software rendering (llvmpipe) so no GPU hardware is needed.
-        # This affects both the host Mesa and the Mesa inside the Steam Runtime
-        # (pressure-vessel) container, both of which respect these variables.
-        "LIBGL_ALWAYS_SOFTWARE=1"
-        "GALLIUM_DRIVER=llvmpipe"
-        # Disable Vulkan — Proton falls back to OpenGL via DXVK's compatibility
-        # layer. On Haswell (incomplete Vulkan) this avoids driver conflicts that
-        # can prevent SDL from selecting any video backend.
-        "PROTON_NO_VULKAN=1"
-        # Set to 1 to capture verbose Proton/Wine diagnostics in the journal
-        "PROTON_LOG=0"
+        "WINEPREFIX=${cfg.installDir}/wine-prefix"
+        # Suppress noise; set to +all to capture verbose Wine diagnostics
+        "WINEDEBUG=-all"
+        # Prevent Wine from showing popup error dialogs (would block headlessly)
+        "WINEDLLOVERRIDES=mscoree=n;mshtml="
       ];
       ExecStart = serverScript;
       Restart = "on-failure";

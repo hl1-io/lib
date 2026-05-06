@@ -25,14 +25,13 @@ in
   systemd.tmpfiles.rules = [
     "d ${cfg.installDir}                   0750 ${user} ${group} -"
     "d ${cfg.installDir}/game              0750 ${user} ${group} -"
-    "d ${cfg.installDir}/proton            0750 ${user} ${group} -"
-    "d ${cfg.installDir}/proton-prefix     0750 ${user} ${group} -"
+    "d ${cfg.installDir}/wine-prefix       0750 ${user} ${group} -"
     "d ${cfg.installDir}/instance          0750 ${user} ${group} -"
   ];
 
   environment.systemPackages = with pkgs; [
     steamcmd
-    umu-launcher
+    wineWowPackages.stable
     xvfb-run
   ];
 
