@@ -31,9 +31,20 @@ let
     set -euo pipefail
 
     # Space Engineers initialises Xalia (a SDL-based windowing layer) even in
-    # -console mode. xvfb-run provides a throwaway virtual X11 display so that
-    # SDL/Xalia can find a video driver without a physical screen attached.
-    ${pkgs.xvfb-run}/bin/xvfb-run --auto-servernum \
+    # -console mode, so a virtual display is required.
+    #
+    # Two issues caused SDL to report "Video driver  not supported":
+    #   1. xvfb-run's default screen is 640x480x8 (8-bit colour depth).
+    #      SDL/GLX requires 24-bit depth to create any GL context; without it
+    #      SDL_GetCurrentVideoDriver() returns empty and Xalia throws.
+    #   2. Haswell has incomplete Vulkan support. Without PROTON_NO_VULKAN=1 and
+    #      LIBGL_ALWAYS_SOFTWARE=1 Proton tries hardware Vulkan and may interfere
+    #      with SDL's driver initialisation.
+    #
+    # Fix: 24-bit virtual screen + software Mesa (llvmpipe) so no GPU is needed.
+    ${pkgs.xvfb-run}/bin/xvfb-run \
+      --auto-servernum \
+      --server-args="-screen 0 1920x1080x24" \
       ${pkgs.umu-launcher}/bin/umu-run \
         ${cfg.installDir}/game/SpaceEngineersDedicated.exe \
         -path ${cfg.installDir}/instance \
@@ -71,6 +82,15 @@ in
         # It must not reference a nix package — proton-ge-bin outputs a bare archive
         # file that buildEnv cannot merge into the system environment.
         "PROTONPATH=${cfg.installDir}/proton"
+        # Force Mesa software rendering (llvmpipe) so no GPU hardware is needed.
+        # This affects both the host Mesa and the Mesa inside the Steam Runtime
+        # (pressure-vessel) container, both of which respect these variables.
+        "LIBGL_ALWAYS_SOFTWARE=1"
+        "GALLIUM_DRIVER=llvmpipe"
+        # Disable Vulkan — Proton falls back to OpenGL via DXVK's compatibility
+        # layer. On Haswell (incomplete Vulkan) this avoids driver conflicts that
+        # can prevent SDL from selecting any video backend.
+        "PROTON_NO_VULKAN=1"
         # Set to 1 to capture verbose Proton/Wine diagnostics in the journal
         "PROTON_LOG=0"
       ];
